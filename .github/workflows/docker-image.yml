@@ -14,9 +14,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
         
       - name: Build the Docker image
-        id: build
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }} .
 
       - name: Verify Docker image build
@@ -37,9 +39,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Verify Docker image presence before tagging
+        run: |
+          docker images
+          docker tag ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:latest
+          
       - name: Push Docker image to Docker Hub
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:latest
           
