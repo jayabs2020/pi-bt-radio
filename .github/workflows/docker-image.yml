@@ -17,7 +17,7 @@ jobs:
         
       - name: Build the Docker image
         id: build
-        run: docker build . --file Dockerfile --tag jayabs/pi-bt-radio:latest
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }} .
 
   push:
     runs-on: ubuntu-latest
@@ -27,14 +27,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Push Docker image to Docker Hub
         run: |
-          TIMESTAMP=$(date +%s)
-          docker tag jayabs/pi-bt-radio:latest jayabs/pi-bt-radio:$TIMESTAMP
-          docker push jayabs/pi-bt-radio:latest
-          docker push jayabs/pi-bt-radio:$TIMESTAMP
+          docker tag ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:latest
           
