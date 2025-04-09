@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch: 
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,10 +16,14 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Build the Docker image
+        id: build
         run: | 
           TIMESTAMP=$(date +%s)
           docker build . --file Dockerfile --tag jayabs/pi-bt-radio:$TIMESTAMP
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT
+
+    outputs:
+      TIMESTAMP: ${{ steps.build.outputs.TIMESTAMP }}
 
   push:
     runs-on: ubuntu-latest
@@ -40,3 +44,4 @@ jobs:
           docker tag jayabs/pi-bt-radio:$TIMESTAMP jayabs/pi-bt-radio:latest
           docker push jayabs/pi-bt-radio:latest
           docker push jayabs/pi-bt-radio:$TIMESTAMP
+          
