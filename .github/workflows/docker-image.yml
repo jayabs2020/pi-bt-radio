@@ -5,14 +5,34 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: 
 
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag jayabs/pi-bt-radio:$(date +%s)
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag jayabs/pi-bt-radio:$(date +%s)
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    if: github-event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag jayabs/pi-bt-radio:latest
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        
+      - name: Push Docker image to Docker Hub
+        run: docker push jayabs/pi-bt-radio:latest
+        
