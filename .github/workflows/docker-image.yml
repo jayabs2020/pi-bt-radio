@@ -19,6 +19,7 @@ jobs:
         run: | 
           TIMESTAMP=$(date +%s)
           docker build . --file Dockerfile --tag jayabs/pi-bt-radio:$TIMESTAMP
+          echo "::set-output name=TIMESTAMP::$TIMESTAMP"
 
   push:
     runs-on: ubuntu-latest
