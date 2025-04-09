@@ -17,19 +17,11 @@ jobs:
         
       - name: Build the Docker image
         id: build
-        run: | 
-          TIMESTAMP=$(date +%s)
-          docker build . --file Dockerfile --tag jayabs/pi-bt-radio:$TIMESTAMP
-          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT
-
-    outputs:
-      TIMESTAMP: ${{ steps.build.outputs.TIMESTAMP }}
+        run: docker build . --file Dockerfile --tag jayabs/pi-bt-radio:latest
 
   push:
     runs-on: ubuntu-latest
     needs: build
-    env:
-      TIMESTAMP: ${{ needs.build.outputs.TIMESTAMP }}
     if: github.event_name == 'workflow_dispatch'
 
     steps:
@@ -41,7 +33,8 @@ jobs:
         
       - name: Push Docker image to Docker Hub
         run: |
-          docker tag jayabs/pi-bt-radio:$TIMESTAMP jayabs/pi-bt-radio:latest
+          TIMESTAMP=$(date +%s)
+          docker tag jayabs/pi-bt-radio:latest jayabs/pi-bt-radio:$TIMESTAMP
           docker push jayabs/pi-bt-radio:latest
           docker push jayabs/pi-bt-radio:$TIMESTAMP
           
