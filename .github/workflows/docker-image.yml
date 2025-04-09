@@ -19,6 +19,9 @@ jobs:
         id: build
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/pi-bt-radio:${{ github.sha }} .
 
+      - name: Verify Docker image build
+        run: docker images 
+
   push:
     runs-on: ubuntu-latest
     needs: build
